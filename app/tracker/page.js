@@ -1,50 +1,27 @@
-'use client';
-
-import { useEffect, useState } from 'react';
+"use client";
+import { useEffect, useState } from "react";
 
 export default function Page() {
-  const [ip, setIp] = useState('Loading...');
-  const [ua, setUa] = useState('');
-  const [device, setDevice] = useState('Detecting...');
+  const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    setUa(navigator.userAgent);
-
-    fetch('https://api.ipify.org?format=json')
-      .then(res => res.json())
-      .then(data => setIp(data.ip));
-
-    const getDeviceInfo = () => {
-      const ua = navigator.userAgent;
-      let device = 'Unknown';
-
-      if (/Android/i.test(ua)) {
-        const match = ua.match(/Android\s+([\d.]+).*;\s*(.*?)\s+Build/);
-        device = match ? match[2] : 'Android Device';
-      } else if (/iPhone|iPad|iPod/i.test(ua)) {
-        device = 'Apple Device';
-      }
-
-      setDevice(device);
-    };
-
-    getDeviceInfo();
+    fetch("/api/logs")
+      .then((res) => res.json())
+      .then((data) => setLogs(data));
   }, []);
 
   return (
-    <div style={{
-      fontFamily: 'Arial, sans-serif',
-      padding: '2rem',
-      background: '#f4f4f4',
-      maxWidth: '600px',
-      margin: '4rem auto',
-      borderRadius: '12px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-    }}>
-      <h2 style={{ color: '#333', marginBottom: '1.5rem' }}>📡 Tracker Info</h2>
-      <p><strong>IP Address:</strong> {ip}</p>
-      <p><strong>User Agent:</strong> {ua}</p>
-      <p><strong>Device Info:</strong> {device}</p>
+    <div style={{ padding: "2rem", fontFamily: "monospace", backgroundColor: "#0f0f0f", color: "#fff" }}>
+      <h2 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>📡 Tracker Dashboard</h2>
+      {logs.length === 0 && <p>No logs yet.</p>}
+      {logs.map((log, i) => (
+        <div key={i} style={{ background: "#1e1e1e", padding: "1rem", borderRadius: "10px", marginBottom: "1rem", boxShadow: "0 0 10px #222" }}>
+          <p>🌐 <strong>IP:</strong> {log.ip}</p>
+          <p>📱 <strong>Device:</strong> {log.device}</p>
+          <p>🕒 <strong>Time:</strong> {log.time}</p>
+          <p><strong>User-Agent:</strong> {log.ua}</p>
+        </div>
+      ))}
     </div>
   );
 }
